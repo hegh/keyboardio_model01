@@ -15,6 +15,7 @@
 
 // The Kaleidoscope core
 #include "Kaleidoscope.h"
+#include "keyswitch_state.h"
 
 // Support for keys that move the mouse
 #include "Kaleidoscope-MouseKeys.h"
@@ -74,7 +75,8 @@
   */
 
 enum { MACRO_VERSION_INFO,
-       MACRO_ANY
+       MACRO_ANY,
+       MACRO_REISUB,
      };
 
 
@@ -121,7 +123,7 @@ enum { MACRO_VERSION_INFO,
   *
   */
 
-enum { QWERTY, NUMPAD, FUNCTION }; // layers
+enum { QWERTY, NUMPAD, FUNCTION, SYSTEM_EMERGENCY }; // layers
 
 /* This comment temporarily turns off astyle's indent enforcement
  *   so we can make the keymaps actually resemble the physical key layout better
@@ -131,50 +133,66 @@ enum { QWERTY, NUMPAD, FUNCTION }; // layers
 KEYMAPS(
 
   [QWERTY] = KEYMAP_STACKED
-  (___,          Key_1, Key_2, Key_3, Key_4, Key_5, Key_LEDEffectNext,
-   Key_Backtick, Key_Q, Key_W, Key_E, Key_R, Key_T, Key_Tab,
+  (Key_Backtick, Key_1, Key_2, Key_3, Key_4, Key_5, Key_Home,
+   Key_Tab,      Key_Q, Key_W, Key_E, Key_R, Key_T, Key_F3,
    Key_PageUp,   Key_A, Key_S, Key_D, Key_F, Key_G,
-   Key_PageDown, Key_Z, Key_X, Key_C, Key_V, Key_B, Key_Escape,
-   Key_LeftControl, Key_Backspace, Key_LeftGui, Key_LeftShift,
+   Key_PageDown, Key_Z, Key_X, Key_C, Key_V, Key_B, Key_Minus, // Dvorak left bracket
+   Key_Escape,   Key_LeftShift, Key_LeftControl, Key_LeftGui,
    ShiftToLayer(FUNCTION),
 
-   M(MACRO_ANY),  Key_6, Key_7, Key_8,     Key_9,         Key_0,         LockLayer(NUMPAD),
-   Key_Enter,     Key_Y, Key_U, Key_I,     Key_O,         Key_P,         Key_Equals,
-                  Key_H, Key_J, Key_K,     Key_L,         Key_Semicolon, Key_Quote,
-   Key_RightAlt,  Key_N, Key_M, Key_Comma, Key_Period,    Key_Slash,     Key_Minus,
-   Key_RightShift, Key_LeftAlt, Key_Spacebar, Key_RightControl,
+   Key_End,       Key_6, Key_7, Key_8,     Key_9,         Key_0,         Key_RightBracket, // Dvorak equals
+   Key_F4,        Key_Y, Key_U, Key_I,     Key_O,         Key_P,         Key_LeftBracket,  // Dvorak slash
+                  Key_H, Key_J, Key_K,     Key_L,         Key_Semicolon, Key_Quote,        // Dvorak minus
+   Key_Equals,    Key_N, Key_M, Key_Comma, Key_Period,    Key_Slash,     Key_PcApplication, // = is Dvorak right bracket, PcApplication is context menu
+   Key_Backspace, Key_Enter, Key_Spacebar, Key_RightShift,
    ShiftToLayer(FUNCTION)),
 
 
   [NUMPAD] =  KEYMAP_STACKED
-  (___, ___, ___, ___, ___, ___, ___,
-   ___, ___, ___, ___, ___, ___, ___,
-   ___, ___, ___, ___, ___, ___,
-   ___, ___, ___, ___, ___, ___, ___,
+  (LockLayer(SYSTEM_EMERGENCY), ___, ___, ___, ___, ___, ___,
+   ___,                         ___, ___, ___, ___, ___, ___,
+   ___,                         ___, ___, ___, ___, ___,
+   ___,                         ___, ___, ___, ___, ___, M(MACRO_ANY),
    ___, ___, ___, ___,
    ___,
 
-   M(MACRO_VERSION_INFO),  ___, Key_Keypad7, Key_Keypad8,   Key_Keypad9,        Key_KeypadSubtract, ___,
-   ___,                    ___, Key_Keypad4, Key_Keypad5,   Key_Keypad6,        Key_KeypadAdd,      ___,
-                           ___, Key_Keypad1, Key_Keypad2,   Key_Keypad3,        Key_Equals,         ___,
-   ___,                    ___, Key_Keypad0, Key_KeypadDot, Key_KeypadMultiply, Key_KeypadDivide,   Key_Enter,
+   ___,                    XXX, Key_Keypad7, Key_Keypad8,   Key_Keypad9,        Key_KeypadMultiply, LockLayer(NUMPAD),
+   ___,                    XXX, Key_Keypad4, Key_Keypad5,   Key_Keypad6,        Key_KeypadAdd,      Key_KeypadDivide,
+                           XXX, Key_Keypad1, Key_Keypad2,   Key_Keypad3,        Key_Equals,         Key_KeypadSubtract,
+   M(MACRO_VERSION_INFO),  XXX, Key_Keypad0, Key_KeypadDot, XXX,                XXX,                Key_Enter,
    ___, ___, ___, ___,
    ___),
 
+
   [FUNCTION] =  KEYMAP_STACKED
-  (___,      Key_F1,           Key_F2,      Key_F3,     Key_F4,        Key_F5,           XXX,
-   Key_Tab,  ___,              Key_mouseUp, ___,        Key_mouseBtnR, Key_mouseWarpEnd, Key_mouseWarpNE,
+  (XXX,      Key_F1,           Key_F2,      Key_F3,     Key_F4,        Key_F5,           Key_LEDEffectPrevious,
+   Key_Tab,  XXX,              Key_mouseUp, XXX,        Key_mouseBtnR, Key_mouseWarpEnd, Key_mouseWarpNE,
    Key_Home, Key_mouseL,       Key_mouseDn, Key_mouseR, Key_mouseBtnL, Key_mouseWarpNW,
-   Key_End,  Key_PrintScreen,  Key_Insert,  ___,        Key_mouseBtnM, Key_mouseWarpSW,  Key_mouseWarpSE,
-   ___, Key_Delete, ___, ___,
+   Key_End,  Key_PrintScreen,  Key_Insert,  XXX,        Key_mouseBtnM, Key_mouseWarpSW,  Key_mouseWarpSE,
+   Key_Pause, Key_LeftAlt, LSHIFT(Key_LeftControl), LSHIFT(Key_LeftGui),
    ___,
 
-   Consumer_ScanPreviousTrack, Key_F6,                 Key_F7,                   Key_F8,                   Key_F9,          Key_F10,          Key_F11,
-   Consumer_PlaySlashPause,    Consumer_ScanNextTrack, Key_LeftCurlyBracket,     Key_RightCurlyBracket,    Key_LeftBracket, Key_RightBracket, Key_F12,
-                               Key_LeftArrow,          Key_DownArrow,            Key_UpArrow,              Key_RightArrow,  ___,              ___,
-   Key_PcApplication,          Consumer_Mute,          Consumer_VolumeDecrement, Consumer_VolumeIncrement, ___,             Key_Backslash,    Key_Pipe,
-   ___, ___, Key_Enter, ___,
-   ___)
+   Key_LEDEffectNext, Key_F6,        Key_F7,                   Key_F8,                   Key_F9,         Key_F10, LockLayer(NUMPAD),
+   Key_F11,           XXX,           Key_Home,                 Key_UpArrow,              Key_End,        XXX,     Key_Backslash,
+                      XXX,           Key_LeftArrow,            Key_DownArrow,            Key_RightArrow, XXX,     XXX,
+   Key_F12,           Consumer_Mute, Consumer_VolumeDecrement, Consumer_VolumeIncrement, XXX,            XXX,     XXX,
+   Key_Delete, ___, Key_RightControl, ___,
+   ___),
+
+  [SYSTEM_EMERGENCY] = KEYMAP_STACKED
+  (___, XXX, XXX, XXX, XXX, XXX, XXX, // Prog key got us in, and will get us out.
+   XXX, XXX, XXX, XXX, XXX, XXX, XXX,
+   XXX, XXX, XXX, XXX, XXX, XXX,
+   XXX, XXX, XXX, XXX, XXX, XXX, XXX,
+   XXX, XXX, XXX, XXX,
+   XXX,
+
+   XXX,             XXX, XXX, XXX, XXX, XXX, XXX,
+   XXX,             XXX, XXX, XXX, XXX, XXX, XXX,
+                    XXX, XXX, XXX, XXX, XXX, XXX,
+   M(MACRO_REISUB), XXX, XXX, XXX, XXX, XXX, XXX, // Butterfly key reboots the system.
+   XXX, XXX, XXX, XXX,
+   XXX),
 
 	) // KEYMAPS(
 
@@ -185,7 +203,6 @@ KEYMAPS(
  *  When a key bound to the macro is pressed, this macro
  *  prints out the firmware build information as virtual keystrokes
  */
-
 static void versionInfoMacro(uint8_t keyState) {
   if (keyToggledOn(keyState)) {
     Macros.type(PSTR("Keyboardio Model 01 - Kaleidoscope "));
@@ -198,9 +215,7 @@ static void versionInfoMacro(uint8_t keyState) {
  * When the 'any key' macro is toggled on, a random alphanumeric key is
  * selected. While the key is held, the function generates a synthetic
  * keypress event repeating that randomly selected key.
- *
  */
-
 static void anyKeyMacro(uint8_t keyState) {
   static Key lastKey;
   if (keyToggledOn(keyState))
@@ -210,6 +225,24 @@ static void anyKeyMacro(uint8_t keyState) {
     kaleidoscope::hid::pressKey(lastKey);
 }
 
+/** reisubMacro sends the Linux Reboot Even If System Utterly Broken sequence.
+ */
+static const macro_t *reisubMacro(uint8_t keyState) {
+  return MACRODOWN(D(LeftAlt),
+                   D(Sysreq),
+                   T(R),
+		   T(E),
+		   W(250), W(250), W(250), W(250), W(250), W(250), W(250), W(250), // 2 seconds.
+		   T(I),
+		   W(250), W(250), W(250), W(250), W(250), W(250), W(250), W(250), // 2 seconds.
+		   T(S),
+		   W(250), W(250), W(250), W(250), W(250), W(250), W(250), W(250), // 2 seconds.
+		   T(U),
+		   W(250), W(250), W(250), W(250), W(250), W(250), W(250), W(250), // 2 seconds.
+		   T(B),
+		   U(Sysreq),
+		   U(LeftAlt));
+}
 
 /** macroAction dispatches keymap events that are tied to a macro
     to that macro. It takes two uint8_t parameters.
@@ -220,12 +253,9 @@ static void anyKeyMacro(uint8_t keyState) {
 
     The 'switch' statement should have a 'case' for each entry of the macro enum.
     Each 'case' statement should call out to a function to handle the macro in question.
-
  */
-
 const macro_t *macroAction(uint8_t macroIndex, uint8_t keyState) {
   switch (macroIndex) {
-
   case MACRO_VERSION_INFO:
     versionInfoMacro(keyState);
     break;
@@ -233,6 +263,9 @@ const macro_t *macroAction(uint8_t macroIndex, uint8_t keyState) {
   case MACRO_ANY:
     anyKeyMacro(keyState);
     break;
+
+  case MACRO_REISUB:
+    return reisubMacro(keyState);
   }
   return MACRO_NONE;
 }
@@ -251,6 +284,26 @@ static kaleidoscope::LEDSolidColor solidGreen(0, 160, 0);
 static kaleidoscope::LEDSolidColor solidBlue(0, 70, 130);
 static kaleidoscope::LEDSolidColor solidIndigo(0, 0, 170);
 static kaleidoscope::LEDSolidColor solidViolet(130, 0, 120);
+
+static void layerColorOverride(bool post_clear) {
+  if (!post_clear) return;
+
+  // NOTE: Multiple layers may be enabled at the same time. Don't assume that
+  // just because the layer you are interested in coloring is enabled, no other
+  // layers are also enabled.
+
+  if (Layer.isOn(SYSTEM_EMERGENCY)) {
+    LEDControl.set_all_leds_to(breath_compute(33, 255)); // Yellow
+    LEDControl.setCrgbAt(LED_PROG, CRGB(0, 160, 0));      // Green
+    LEDControl.setCrgbAt(LED_BUTTERFLY, CRGB(160, 0, 0)); // Red
+    return;
+  }
+  if (Layer.isOn(NUMPAD)) {
+    LEDControl.setCrgbAt(LED_PROG, breath_compute(0, 255)); // Red
+    return;
+  }
+}
+
 
 /** toggleLedsOnSuspendResume toggles the LEDs off when the host goes to sleep,
  * and turns them back on when it wakes up.
@@ -360,6 +413,9 @@ void setup() {
   // called 'BlazingTrail'. For details on other options,
   // see https://github.com/keyboardio/Kaleidoscope-LED-Stalker
   StalkerEffect.variant = STALKER(BlazingTrail);
+
+  // Add any layer-specific overrides defined in this file.
+  Kaleidoscope.useLoopHook(layerColorOverride);
 
   // We want the keyboard to be able to wake the host up from suspend.
   HostPowerManagement.enableWakeup();
