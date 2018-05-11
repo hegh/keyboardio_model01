@@ -36,6 +36,23 @@
 // when the keyboard is connected to a computer (or that computer is powered on)
 #include "Kaleidoscope-LEDEffect-BootGreeting.h"
 
+// Support for LED modes that pulse the keyboard's LED in a rainbow pattern
+#include "Kaleidoscope-LEDEffect-Rainbow.h"
+
+// Support for an LED mode that lights up the keys as you press them
+#include "Kaleidoscope-LED-Stalker.h"
+
+// Support for Keyboardio's internal keyboard testing mode
+#include "Kaleidoscope-Model01-TestMode.h"
+
+// Support for host power management (suspend & wakeup)
+#include "Kaleidoscope-HostPowerManagement.h"
+
+// Support for one-shots.
+#include "Kaleidoscope-OneShot.h"
+#include "Kaleidoscope-Escape-OneShot.h"
+
+/*
 // Support for LED modes that set all LEDs to a single color
 #include "Kaleidoscope-LEDEffect-SolidColor.h"
 
@@ -45,20 +62,9 @@
 // Support for an LED mode that makes a red pixel chase a blue pixel across the keyboard
 #include "Kaleidoscope-LEDEffect-Chase.h"
 
-// Support for LED modes that pulse the keyboard's LED in a rainbow pattern
-#include "Kaleidoscope-LEDEffect-Rainbow.h"
-
-// Support for an LED mode that lights up the keys as you press them
-#include "Kaleidoscope-LED-Stalker.h"
-
 // Support for an LED mode that prints the keys you press in letters 4px high
 #include "Kaleidoscope-LED-AlphaSquare.h"
-
-// Support for Keyboardio's internal keyboard testing mode
-#include "Kaleidoscope-Model01-TestMode.h"
-
-// Support for host power management (suspend & wakeup)
-#include "Kaleidoscope-HostPowerManagement.h"
+*/
 
 
 /** This 'enum' is a list of all the macros used by the Model 01's firmware
@@ -123,7 +129,7 @@ enum { MACRO_VERSION_INFO,
   *
   */
 
-enum { QWERTY, NUMPAD, FUNCTION, SYSTEM_EMERGENCY }; // layers
+enum { QWERTY, MOUSE_NUMPAD, FUNCTION, SYSTEM_EMERGENCY }; // layers
 
 /* This comment temporarily turns off astyle's indent enforcement
  *   so we can make the keymaps actually resemble the physical key layout better
@@ -131,70 +137,76 @@ enum { QWERTY, NUMPAD, FUNCTION, SYSTEM_EMERGENCY }; // layers
 // *INDENT-OFF*
 
 KEYMAPS(
-
   [QWERTY] = KEYMAP_STACKED
-  (Key_Backtick, Key_1, Key_2, Key_3, Key_4, Key_5, Key_Home,
-   Key_Tab,      Key_Q, Key_W, Key_E, Key_R, Key_T, Key_F3,
-   Key_PageUp,   Key_A, Key_S, Key_D, Key_F, Key_G,
-   Key_PageDown, Key_Z, Key_X, Key_C, Key_V, Key_B, Key_Minus, // Dvorak left bracket
+  ( // QWERTY Left
+   Key_Backtick, Key_F1, Key_F2, Key_F3, Key_F4, Key_F5, OSM(LeftAlt),
+   Key_Tab,      Key_Q,  Key_W,  Key_E,  Key_R,  Key_T,  Key_F3,
+   Key_PageUp,   Key_A,  Key_S,  Key_D,  Key_F,  Key_G,
+   Key_PageDown, Key_Z,  Key_X,  Key_C,  Key_V,  Key_B,  Key_Minus, // Dvorak left bracket
    Key_Escape,   Key_LeftShift, Key_LeftControl, Key_LeftGui,
    ShiftToLayer(FUNCTION),
 
-   Key_End,       Key_6, Key_7, Key_8,     Key_9,         Key_0,         Key_RightBracket, // Dvorak equals
-   Key_F4,        Key_Y, Key_U, Key_I,     Key_O,         Key_P,         Key_LeftBracket,  // Dvorak slash
-                  Key_H, Key_J, Key_K,     Key_L,         Key_Semicolon, Key_Quote,        // Dvorak minus
-   Key_Equals,    Key_N, Key_M, Key_Comma, Key_Period,    Key_Slash,     Key_PcApplication, // = is Dvorak right bracket, PcApplication is context menu
-   Key_Backspace, Key_Enter, Key_Spacebar, Key_RightShift,
+   // QWERTY Right
+   LockLayer(MOUSE_NUMPAD),  Key_F6, Key_F7, Key_F8,     Key_F9,         Key_F10,        Key_RightBracket, // Dvorak equals
+   Key_F4,                   Key_Y,  Key_U,  Key_I,      Key_O,          Key_P,          Key_LeftBracket,  // Dvorak slash
+                             Key_H,  Key_J,  Key_K,      Key_L,          Key_Semicolon,  Key_Quote,        // Dvorak minus
+   Key_Equals,               Key_N,  Key_M,  Key_Comma,  Key_Period,     Key_Slash,      Key_Pause,       // = is Dvorak right bracket
+   Key_Backspace, Key_Enter, Key_Spacebar, OSM(RightShift),
    ShiftToLayer(FUNCTION)),
 
 
-  [NUMPAD] =  KEYMAP_STACKED
-  (LockLayer(SYSTEM_EMERGENCY), ___, ___, ___, ___, ___, ___,
-   ___,                         ___, ___, ___, ___, ___, ___,
-   ___,                         ___, ___, ___, ___, ___,
-   ___,                         ___, ___, ___, ___, ___, M(MACRO_ANY),
+  [MOUSE_NUMPAD] =  KEYMAP_STACKED
+  ( // Mouse/Numpad Left
+   LockLayer(SYSTEM_EMERGENCY),  XXX,        XXX,         XXX,        XXX,           XXX,              XXX,
+   XXX,                          XXX,        Key_mouseUp, XXX,        Key_mouseBtnR, Key_mouseWarpEnd, Key_mouseWarpNE,
+   ___, /* pgup */               Key_mouseL, Key_mouseDn, Key_mouseR, Key_mouseBtnL, Key_mouseWarpNW,
+   ___, /* pgdn */               XXX,        XXX,         XXX,        Key_mouseBtnM, Key_mouseWarpSW,  Key_mouseWarpSE,
    ___, ___, ___, ___,
    ___,
 
-   ___,                    XXX, Key_Keypad7, Key_Keypad8,   Key_Keypad9,        Key_KeypadMultiply, LockLayer(NUMPAD),
-   ___,                    XXX, Key_Keypad4, Key_Keypad5,   Key_Keypad6,        Key_KeypadAdd,      Key_KeypadDivide,
+   // Mouse/Numpad Right
+   ___, /* numlk */        XXX, Key_Keypad7, Key_Keypad8,   Key_Keypad9,        Key_KeypadMultiply, XXX,
+   XXX,                    XXX, Key_Keypad4, Key_Keypad5,   Key_Keypad6,        Key_KeypadAdd,      Key_KeypadDivide,
                            XXX, Key_Keypad1, Key_Keypad2,   Key_Keypad3,        Key_Equals,         Key_KeypadSubtract,
-   M(MACRO_VERSION_INFO),  XXX, Key_Keypad0, Key_KeypadDot, XXX,                XXX,                Key_Enter,
+   XXX,                    XXX, Key_Keypad0, Key_KeypadDot, XXX,                XXX,                Key_Enter,
    ___, ___, ___, ___,
    ___),
 
-
   [FUNCTION] =  KEYMAP_STACKED
-  (XXX,      Key_F1,           Key_F2,      Key_F3,     Key_F4,        Key_F5,           Key_LEDEffectPrevious,
-   Key_Tab,  XXX,              Key_mouseUp, XXX,        Key_mouseBtnR, Key_mouseWarpEnd, Key_mouseWarpNE,
-   Key_Home, Key_mouseL,       Key_mouseDn, Key_mouseR, Key_mouseBtnL, Key_mouseWarpNW,
-   Key_End,  Key_PrintScreen,  Key_Insert,  XXX,        Key_mouseBtnM, Key_mouseWarpSW,  Key_mouseWarpSE,
-   Key_Pause, Key_LeftAlt, LSHIFT(Key_LeftControl), LSHIFT(Key_LeftGui),
+  ( // Function Left
+   XXX,                   ___,             ___,        ___,   ___,   ___,   M(MACRO_VERSION_INFO),
+   ___,                   Key_6,           Key_7,      Key_8, Key_9, Key_0, Key_F11,
+   Key_LEDEffectNext,     Key_1,           Key_2,      Key_3, Key_4, Key_5,
+   Key_LEDEffectPrevious, Key_PrintScreen, Key_Insert, XXX,   XXX,   XXX,   Key_Home,
+   Key_LeftGui, Key_LeftShift, Key_LeftControl, Key_LeftAlt,
    ___,
 
-   Key_LEDEffectNext, Key_F6,        Key_F7,                   Key_F8,                   Key_F9,         Key_F10, LockLayer(NUMPAD),
-   Key_F11,           XXX,           Key_Home,                 Key_UpArrow,              Key_End,        XXX,     Key_Backslash,
+   // Function Right
+   M(MACRO_ANY), ___,        ___,                   ___,                   ___,         ___, XXX,
+   Key_F12,           XXX,           Key_Home,                 Key_UpArrow,              Key_End,        XXX,     Key_Backslash,
                       XXX,           Key_LeftArrow,            Key_DownArrow,            Key_RightArrow, XXX,     XXX,
-   Key_F12,           Consumer_Mute, Consumer_VolumeDecrement, Consumer_VolumeIncrement, XXX,            XXX,     XXX,
-   Key_Delete, ___, Key_RightControl, ___,
+   Key_End,           Consumer_Mute, Consumer_VolumeDecrement, Consumer_VolumeIncrement, XXX,            XXX,     XXX,
+   Key_Delete, Key_RightControl, Key_RightShift, Key_RightGui,
    ___),
 
   [SYSTEM_EMERGENCY] = KEYMAP_STACKED
-  (___, XXX, XXX, XXX, XXX, XXX, XXX, // Prog key got us in, and will get us out.
-   XXX, XXX, XXX, XXX, XXX, XXX, XXX,
-   XXX, XXX, XXX, XXX, XXX, XXX,
-   XXX, XXX, XXX, XXX, XXX, XXX, XXX,
+  ( // System Emergency Left
+   ___, LCTRL(LALT(Key_F1)), LCTRL(LALT(Key_F2)), LCTRL(LALT(Key_F3)), LCTRL(LALT(Key_F4)), LCTRL(LALT(Key_F5)), XXX, // Prog returns to prev. layer.
+   XXX, XXX,                 XXX,                 XXX,                 XXX,                 XXX,                 XXX,
+   XXX, XXX,                 XXX,                 XXX,                 XXX,                 XXX,
+   XXX, XXX,                 XXX,                 XXX,                 XXX,                 XXX,                 XXX,
    XXX, XXX, XXX, XXX,
    XXX,
 
-   XXX,             XXX, XXX, XXX, XXX, XXX, XXX,
-   XXX,             XXX, XXX, XXX, XXX, XXX, XXX,
-                    XXX, XXX, XXX, XXX, XXX, XXX,
-   M(MACRO_REISUB), XXX, XXX, XXX, XXX, XXX, XXX, // Butterfly key reboots the system.
+   // System Emergency Right
+   XXX,             LCTRL(LALT(Key_F6)), LCTRL(LALT(Key_F7)), LCTRL(LALT(Key_F8)), LCTRL(LALT(Key_F9)), XXX, XXX,
+   XXX,             XXX,                 XXX,                 XXX,                 XXX,                 XXX, XXX,
+                    XXX,                 XXX,                 XXX,                 XXX,                 XXX, XXX,
+   M(MACRO_REISUB), XXX,                 XXX,                 XXX,                 XXX,                 XXX, XXX, // Butterfly key reboots the system.
    XXX, XXX, XXX, XXX,
    XXX),
 
-	) // KEYMAPS(
+) // KEYMAPS
 
 /* Re-enable astyle's indent enforcement */
 // *INDENT-ON*
@@ -276,7 +288,7 @@ const macro_t *macroAction(uint8_t macroIndex, uint8_t keyState) {
 // LED color modes calibrated to draw 500mA or less on the
 // Keyboardio Model 01.
 
-
+/*
 static kaleidoscope::LEDSolidColor solidRed(160, 0, 0);
 static kaleidoscope::LEDSolidColor solidOrange(140, 70, 0);
 static kaleidoscope::LEDSolidColor solidYellow(130, 100, 0);
@@ -284,6 +296,7 @@ static kaleidoscope::LEDSolidColor solidGreen(0, 160, 0);
 static kaleidoscope::LEDSolidColor solidBlue(0, 70, 130);
 static kaleidoscope::LEDSolidColor solidIndigo(0, 0, 170);
 static kaleidoscope::LEDSolidColor solidViolet(130, 0, 120);
+*/
 
 static void layerColorOverride(bool post_clear) {
   if (!post_clear) return;
@@ -293,12 +306,20 @@ static void layerColorOverride(bool post_clear) {
   // layers are also enabled.
 
   if (Layer.isOn(SYSTEM_EMERGENCY)) {
-    LEDControl.set_all_leds_to(breath_compute(33, 255)); // Yellow
+    LEDControl.set_all_leds_to(breath_compute(33, 255));  // Yellow
     LEDControl.setCrgbAt(LED_PROG, CRGB(0, 160, 0));      // Green
     LEDControl.setCrgbAt(LED_BUTTERFLY, CRGB(160, 0, 0)); // Red
+
+    // Blue numbers to switch to virtual terminals.
+    constexpr int8_t numbers[] = {
+        LED_1, LED_2, LED_3, LED_4, LED_5, LED_6, LED_7, LED_8, LED_9, -1,
+    };
+    for (int8_t i = 0; numbers[i] != -1; i++) {
+      LEDControl.setCrgbAt(numbers[i], CRGB(0, 0, 160)); // Blue
+    }
     return;
   }
-  if (Layer.isOn(NUMPAD)) {
+  if (Layer.isOn(MOUSE_NUMPAD)) {
     LEDControl.setCrgbAt(LED_PROG, breath_compute(0, 255)); // Red
     return;
   }
@@ -365,6 +386,7 @@ void setup() {
     // and slowly moves the rainbow across your keyboard
     &LEDRainbowWaveEffect,
 
+/* Disable the LED effects I'm never likely to use.
     // The chase effect follows the adventure of a blue pixel which chases a red pixel across
     // your keyboard. Spoiler: the blue pixel never catches the red pixel
     &LEDChaseEffect,
@@ -378,6 +400,7 @@ void setup() {
     // The AlphaSquare effect prints each character you type, using your
     // keyboard's LEDs as a display
     &AlphaSquareEffect,
+*/
 
     // The stalker effect lights up the keys you've pressed recently
     &StalkerEffect,
@@ -394,15 +417,20 @@ void setup() {
 
     // The HostPowerManagement plugin enables waking up the host from suspend,
     // and allows us to turn LEDs off when it goes to sleep.
-    &HostPowerManagement
+    &HostPowerManagement,
+
+    // OneShot and OneShotEscape enable one-shot keys (tap a modifier and it
+    // sticks until it applies to something, double-tap to lock/single to
+    // unlock), and Escape to leave any active one-shots.
+    &OneShot, &EscapeOneShot
   );
 
   // While we hope to improve this in the future, the NumPad plugin
   // needs to be explicitly told which keymap layer is your numpad layer
-  NumPad.numPadLayer = NUMPAD;
+  NumPad.numPadLayer = MOUSE_NUMPAD;
 
   // We configure the AlphaSquare effect to use RED letters
-  AlphaSquare.color = CRGB(255, 0, 0);
+  // AlphaSquare.color = CRGB(255, 0, 0);
 
   // We set the brightness of the rainbow effects to 150 (on a scale of 0-255)
   // This draws more than 500mA, but looks much nicer than a dimmer effect
